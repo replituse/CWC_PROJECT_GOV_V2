@@ -259,13 +259,13 @@ export function generateInpFile(nodes: WhamoNode[], edges: WhamoEdge[], autoDown
     addL(` ELBOTTOM ${toFPS(Number(d.tankBottom), unit, 'elevation')}`);
     addL(` ELTOP ${toFPS(Number(d.tankTop), unit, 'elevation')}`);
     
-    if (d.shape && Array.isArray(d.shape) && d.shape.length > 0) {
+    if (d.hasShape && d.shape && Array.isArray(d.shape) && d.shape.length > 0) {
       addL(' SHAPE');
       d.shape.forEach((pair: any) => {
         addL(`   E  ${toFPS(Number(pair.e), unit, 'elevation')}`);
         addL(`   A  ${toFPS(Number(pair.a), unit, 'area')}`);
       });
-    } else {
+    } else if (d.diameter !== undefined) {
       addL(` DIAM ${toFPS(Number(d.diameter), unit, 'diameter')}`);
     }
 
