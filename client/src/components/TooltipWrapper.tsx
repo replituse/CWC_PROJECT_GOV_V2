@@ -64,7 +64,7 @@ export function DataList({ data, title }: { data: any, title: string }) {
 
     // Flow Boundary specific filtering
     if (data.type === 'flowBoundary') {
-      if (key === 'schedulePoints') return false;
+      if (key === 'schedulePoints' || key === 'scheduleNumber') return false;
     }
     
     return true;
@@ -127,6 +127,16 @@ export function DataList({ data, title }: { data: any, title: string }) {
             {data.label || 'N/A'}
           </span>
         </div>
+        
+        {data.type === 'flowBoundary' && (
+          <div className="contents">
+            <span className="text-slate-500 font-medium capitalize">Schedule Number:</span>
+            <span className="text-slate-900 font-bold text-right">
+              {data.scheduleNumber || '0'}
+            </span>
+          </div>
+        )}
+
         {entries.map(([key, value]) => {
           const unitStr = getUnit(key);
           const label = getLabel(key);
@@ -144,6 +154,20 @@ export function DataList({ data, title }: { data: any, title: string }) {
           );
         })}
       </div>
+
+      {data.type === 'flowBoundary' && data.schedulePoints && data.schedulePoints.length > 0 && (
+        <div className="mt-2 pt-2 border-t border-slate-100">
+          <div className="text-[9px] font-bold text-slate-400 uppercase mb-1">Queue Schedule Points:</div>
+          <div className="space-y-0.5">
+            {data.schedulePoints.map((p: any, i: number) => (
+              <div key={i} className="flex justify-between text-[10px]">
+                <span className="text-slate-500">T: {p.time}s</span>
+                <span className="text-slate-900 font-bold">Q: {p.flow} {getUnit('flow')}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
