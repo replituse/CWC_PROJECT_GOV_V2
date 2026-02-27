@@ -44,7 +44,7 @@ export function DataList({ data, title }: { data: any, title: string }) {
   const unit = data.unit || globalUnit;
   
   const entries = Object.entries(data).filter(([key]) => {
-    if (key === 'unit' || key === 'type' || key === 'hasAddedLoss' || key === 'hasShape') return false;
+    if (key === 'label' || key === 'unit' || key === 'type' || key === 'hasAddedLoss' || key === 'hasShape') return false;
     
     // Surge Tank specific filtering
     if (data.type === 'surgeTank' || data.type_st) {
