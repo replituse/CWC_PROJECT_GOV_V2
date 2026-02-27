@@ -6,6 +6,7 @@ import {
   EdgeLabelRenderer,
 } from '@xyflow/react';
 import { TooltipWrapper, DataList } from './TooltipWrapper';
+import { useNetworkStore } from '@/lib/store';
 
 export const ConnectionEdge = memo(({
   id,
