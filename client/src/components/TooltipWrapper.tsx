@@ -44,7 +44,7 @@ export function DataList({ data, title }: { data: any, title: string }) {
   const unit = data.unit || globalUnit;
   
   const entries = Object.entries(data).filter(([key]) => {
-    if (key === 'label' || key === 'unit' || key === 'type' || key === 'hasAddedLoss' || key === 'hasShape') return false;
+    if (key === 'unit' || key === 'type' || key === 'hasAddedLoss' || key === 'hasShape') return false;
     
     // Surge Tank specific filtering
     if (data.type === 'surgeTank' || data.type_st) {
@@ -121,6 +121,12 @@ export function DataList({ data, title }: { data: any, title: string }) {
         </div>
       </div>
       <div className="grid grid-cols-2 gap-x-2 gap-y-0.5">
+        <div className="contents">
+          <span className="text-slate-500 font-medium capitalize">Label / ID:</span>
+          <span className="text-slate-900 font-bold text-right">
+            {data.label || 'N/A'}
+          </span>
+        </div>
         {entries.map(([key, value]) => {
           const unitStr = getUnit(key);
           const label = getLabel(key);
