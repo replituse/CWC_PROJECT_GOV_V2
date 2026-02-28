@@ -22,41 +22,41 @@ interface NodeData extends Record<string, unknown> {
   label: string;
   type: NodeType;
   unit?: UnitSystem;
-  elevation?: number;
-  reservoirElevation?: number;
+  elevation?: number | string;
+  reservoirElevation?: number | string;
   nodeNumber?: number;
   comment?: string;
   // Specific properties
-  topElevation?: number;
-  bottomElevation?: number;
-  diameter?: number;
-  celerity?: number;
-  friction?: number;
+  topElevation?: number | string;
+  bottomElevation?: number | string;
+  diameter?: number | string;
+  celerity?: number | string;
+  friction?: number | string;
   scheduleNumber?: number;
-  schedulePoints?: { time: number; flow: number }[];
-  tankTop?: number;
-  tankBottom?: number;
-  shape?: { e: number; a: number }[];
+  schedulePoints?: { time: number; flow: number | string }[];
+  tankTop?: number | string;
+  tankBottom?: number | string;
+  shape?: { e: number | string; a: number | string }[];
 }
 
 interface EdgeData extends Record<string, unknown> {
   label: string;
   type: LinkType;
   unit?: UnitSystem;
-  length?: number;
-  diameter?: number;
-  celerity?: number;
-  friction?: number;
+  length?: number | string;
+  diameter?: number | string;
+  celerity?: number | string;
+  friction?: number | string;
   numSegments?: number;
-  cplus?: number;
-  cminus?: number;
+  cplus?: number | string;
+  cminus?: number | string;
   hasAddedLoss?: boolean;
   comment?: string;
   variable?: boolean;
-  distance?: number;
-  area?: number;
-  d?: number;
-  a?: number;
+  distance?: number | string;
+  area?: number | string;
+  d?: number | string;
+  a?: number | string;
 }
 
 export type WhamoNode = Node<NodeData>;

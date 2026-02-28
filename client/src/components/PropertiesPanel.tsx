@@ -90,13 +90,10 @@ export function PropertiesPanel() {
   };
 
   const handleChange = (key: string, value: any) => {
-    const numValue = parseFloat(value);
-    const finalValue = isNaN(numValue) ? value : numValue;
-    
     if (isNode) {
-      updateNodeData(selectedElementId, { [key]: finalValue });
+      updateNodeData(selectedElementId, { [key]: value });
     } else {
-      updateEdgeData(selectedElementId, { [key]: finalValue });
+      updateEdgeData(selectedElementId, { [key]: value });
     }
   };
 
