@@ -173,7 +173,10 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
       if (isNaN(numValue)) return value;
       if (from === to) return numValue;
       const factor = SI_TO_FPS[type] || 1;
-      return to === 'FPS' ? numValue * factor : numValue / factor;
+      
+      // Calculate with 8 decimals for internal precision
+      const result = to === 'FPS' ? numValue * factor : numValue / factor;
+      return parseFloat(result.toFixed(8));
     };
 
     const fieldMapping: Record<string, keyof typeof SI_TO_FPS> = {
@@ -200,14 +203,15 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
       const dataUpdate: any = {};
       Object.entries(node.data || {}).forEach(([key, value]) => {
         if ((typeof value === 'number' || (typeof value === 'string' && value.trim() !== '' && !isNaN(Number(value)))) && fieldMapping[key]) {
-          dataUpdate[key] = Number(convertValue(value as any, oldUnit, unit, fieldMapping[key]).toFixed(5));
+          const converted = convertValue(value as any, oldUnit, unit, fieldMapping[key]);
+          dataUpdate[key] = converted;
         }
       });
 
       if (node.data?.schedulePoints) {
         dataUpdate.schedulePoints = (node.data.schedulePoints as any[]).map(p => ({
           ...p,
-          flow: Number(convertValue(p.flow, oldUnit, unit, 'flow').toFixed(5))
+          flow: convertValue(p.flow, oldUnit, unit, 'flow')
         }));
       }
 
@@ -223,7 +227,7 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
       const dataUpdate: any = {};
       Object.entries(edge.data || {}).forEach(([key, value]) => {
         if ((typeof value === 'number' || (typeof value === 'string' && value.trim() !== '' && !isNaN(Number(value)))) && fieldMapping[key]) {
-          dataUpdate[key] = Number(convertValue(value as any, oldUnit, unit, fieldMapping[key]).toFixed(5));
+          dataUpdate[key] = convertValue(value as any, oldUnit, unit, fieldMapping[key]);
         }
       });
 

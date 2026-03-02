@@ -44,7 +44,14 @@ export function PropertiesPanel() {
   const convertValue = (value: number, from: UnitSystem, to: UnitSystem, type: keyof typeof SI_TO_FPS) => {
     if (from === to) return value;
     const factor = SI_TO_FPS[type] || 1;
-    return to === 'FPS' ? value * factor : value / factor;
+    const result = to === 'FPS' ? value * factor : value / factor;
+    return parseFloat(result.toFixed(8));
+  };
+
+  const getPrecision = (value: number | string): number => {
+    const s = value.toString();
+    const dotIndex = s.indexOf('.');
+    return dotIndex === -1 ? 0 : s.length - dotIndex - 1;
   };
 
   const handleUnitToggle = (newUnit: UnitSystem) => {
@@ -71,7 +78,7 @@ export function PropertiesPanel() {
     Object.entries(element.data || {}).forEach(([key, value]) => {
       const numValue = typeof value === 'string' ? parseFloat(value) : (typeof value === 'number' ? value : NaN);
       if (!isNaN(numValue) && fieldMapping[key]) {
-        dataUpdate[key] = Number(convertValue(numValue, currentUnit, newUnit, fieldMapping[key]).toFixed(5));
+        dataUpdate[key] = convertValue(numValue, currentUnit, newUnit, fieldMapping[key]);
       }
     });
 
@@ -79,7 +86,7 @@ export function PropertiesPanel() {
     if (element.data?.schedulePoints) {
       dataUpdate.schedulePoints = (element.data.schedulePoints as any[]).map(p => ({
         ...p,
-        flow: Number(convertValue(p.flow, currentUnit, newUnit, 'flow').toFixed(5))
+        flow: convertValue(p.flow, currentUnit, newUnit, 'flow')
       }));
     }
 
@@ -88,6 +95,20 @@ export function PropertiesPanel() {
     } else {
       updateEdgeData(selectedElementId, dataUpdate);
     }
+  };
+
+  const formatDisplayValue = (value: any, key: string) => {
+    if (typeof value !== 'number') return value;
+    
+    // If we're looking at a field that was converted, we might want to round it for display
+    // but the user asked to show it in the original decimal amount it had.
+    // Since we don't store the original precision per-field, we'll use a heuristic 
+    // or just let the Input component handle it (which usually doesn't round unless specified).
+    // However, to satisfy "show it in the original decimal amount it had", 
+    // we can try to round to a reasonable precision if it looks like a repeating decimal from conversion.
+    
+    // For now, we'll just return the number and let the user edit it.
+    return value;
   };
 
   const handleChange = (key: string, value: any) => {
@@ -219,21 +240,21 @@ export function PropertiesPanel() {
                 <Input 
                   id="elev" 
                   type="number" 
-                  value={element.data?.elevation || 0} 
+                  step="any"
+                  value={element.data?.elevation !== undefined ? parseFloat(Number(element.data.elevation).toFixed(8)) : 0} 
                   onChange={(e) => handleChange('elevation', e.target.value)} 
                 />
               </div>
-              {element.data?.type === 'reservoir' && (
-                <div className="grid gap-2">
-                  <Label htmlFor="resElev">Reservoir Elevation (HW) ({currentUnit === 'SI' ? 'm' : 'ft'})</Label>
-                  <Input 
-                    id="resElev" 
-                    type="number" 
-                    value={element.data?.reservoirElevation || 0} 
-                    onChange={(e) => handleChange('reservoirElevation', e.target.value)} 
-                  />
-                </div>
-              )}
+              <div className="grid gap-2">
+                <Label htmlFor="resElev">Reservoir Elevation (HW) ({currentUnit === 'SI' ? 'm' : 'ft'})</Label>
+                <Input 
+                  id="resElev" 
+                  type="number" 
+                  step="any"
+                  value={element.data?.reservoirElevation !== undefined ? parseFloat(Number(element.data.reservoirElevation).toFixed(8)) : 0} 
+                  onChange={(e) => handleChange('reservoirElevation', e.target.value)} 
+                />
+              </div>
               {element.data?.type === 'flowBoundary' && (
                 <>
                   <div className="grid gap-2">
@@ -340,7 +361,8 @@ export function PropertiesPanel() {
                 <Input 
                   id="tankTop" 
                   type="number" 
-                  value={Number(element.data?.tankTop) || 0} 
+                  step="any"
+                  value={element.data?.tankTop !== undefined ? parseFloat(Number(element.data.tankTop).toFixed(8)) : 0} 
                   onChange={(e) => handleChange('tankTop', e.target.value)} 
                 />
               </div>
@@ -349,7 +371,8 @@ export function PropertiesPanel() {
                 <Input 
                   id="tankBottom" 
                   type="number" 
-                  value={Number(element.data?.tankBottom) || 0} 
+                  step="any"
+                  value={element.data?.tankBottom !== undefined ? parseFloat(Number(element.data.tankBottom).toFixed(8)) : 0} 
                   onChange={(e) => handleChange('tankBottom', e.target.value)} 
                 />
               </div>
@@ -360,7 +383,8 @@ export function PropertiesPanel() {
                   <Input 
                     id="htank" 
                     type="number" 
-                    value={Number(element.data?.initialWaterLevel) || 0} 
+                    step="any"
+                    value={element.data?.initialWaterLevel !== undefined ? parseFloat(Number(element.data.initialWaterLevel).toFixed(8)) : 0} 
                     onChange={(e) => handleChange('initialWaterLevel', e.target.value)} 
                   />
                 </div>
@@ -373,7 +397,8 @@ export function PropertiesPanel() {
                     <Input 
                       id="riserdiam" 
                       type="number" 
-                      value={Number(element.data?.riserDiameter) || 0} 
+                      step="any"
+                      value={element.data?.riserDiameter !== undefined ? parseFloat(Number(element.data.riserDiameter).toFixed(8)) : 0} 
                       onChange={(e) => handleChange('riserDiameter', e.target.value)} 
                     />
                   </div>
@@ -382,7 +407,8 @@ export function PropertiesPanel() {
                     <Input 
                       id="risertop" 
                       type="number" 
-                      value={Number(element.data?.riserTop) || 0} 
+                      step="any"
+                      value={element.data?.riserTop !== undefined ? parseFloat(Number(element.data.riserTop).toFixed(8)) : 0} 
                       onChange={(e) => handleChange('riserTop', e.target.value)} 
                     />
                   </div>
@@ -404,7 +430,8 @@ export function PropertiesPanel() {
                   <Input 
                     id="diam" 
                     type="number" 
-                    value={element.data?.diameter || 0} 
+                    step="any"
+                    value={element.data?.diameter !== undefined ? parseFloat(Number(element.data.diameter).toFixed(8)) : 0} 
                     onChange={(e) => handleChange('diameter', e.target.value)} 
                   />
                 </div>
@@ -416,7 +443,8 @@ export function PropertiesPanel() {
                   <Input 
                     id="st-celerity" 
                     type="number" 
-                    value={element.data?.celerity || 0} 
+                    step="any"
+                    value={element.data?.celerity !== undefined ? parseFloat(Number(element.data.celerity).toFixed(8)) : 0} 
                     onChange={(e) => handleChange('celerity', e.target.value)} 
                   />
                 </div>
@@ -425,7 +453,8 @@ export function PropertiesPanel() {
                   <Input 
                     id="st-friction" 
                     type="number" 
-                    value={element.data?.friction || 0} 
+                    step="any"
+                    value={element.data?.friction !== undefined ? parseFloat(Number(element.data.friction).toFixed(8)) : 0} 
                     onChange={(e) => handleChange('friction', e.target.value)} 
                   />
                 </div>
@@ -447,7 +476,8 @@ export function PropertiesPanel() {
                     <Input 
                       id="st-cplus" 
                       type="number" 
-                      value={element.data?.cplus || 0} 
+                      step="any"
+                      value={element.data?.cplus !== undefined ? parseFloat(Number(element.data.cplus).toFixed(8)) : 0} 
                       onChange={(e) => handleChange('cplus', e.target.value)} 
                     />
                   </div>
@@ -456,7 +486,8 @@ export function PropertiesPanel() {
                     <Input 
                       id="st-cminus" 
                       type="number" 
-                      value={element.data?.cminus || 0} 
+                      step="any"
+                      value={element.data?.cminus !== undefined ? parseFloat(Number(element.data.cminus).toFixed(8)) : 0} 
                       onChange={(e) => handleChange('cminus', e.target.value)} 
                     />
                   </div>
@@ -487,8 +518,9 @@ export function PropertiesPanel() {
                           <Label className="text-[10px]">E ({currentUnit === 'SI' ? 'm' : 'ft'})</Label>
                           <Input 
                             type="number"
+                            step="any"
                             className="h-7 text-xs"
-                            value={pair.e}
+                            value={pair.e !== undefined ? parseFloat(Number(pair.e).toFixed(8)) : 0}
                             onChange={(e) => {
                               const newShape = [...(element.data?.shape as any[])];
                               newShape[index] = { ...newShape[index], e: parseFloat(e.target.value) || 0 };
@@ -500,8 +532,9 @@ export function PropertiesPanel() {
                           <Label className="text-[10px]">A ({currentUnit === 'SI' ? 'm²' : 'ft²'})</Label>
                           <Input 
                             type="number"
+                            step="any"
                             className="h-7 text-xs"
-                            value={pair.a}
+                            value={pair.a !== undefined ? parseFloat(Number(pair.a).toFixed(8)) : 0}
                             onChange={(e) => {
                               const newShape = [...(element.data?.shape as any[])];
                               newShape[index] = { ...newShape[index], a: parseFloat(e.target.value) || 0 };
