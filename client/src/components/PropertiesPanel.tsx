@@ -71,7 +71,7 @@ export function PropertiesPanel() {
     Object.entries(element.data || {}).forEach(([key, value]) => {
       const numValue = typeof value === 'string' ? parseFloat(value) : (typeof value === 'number' ? value : NaN);
       if (!isNaN(numValue) && fieldMapping[key]) {
-        dataUpdate[key] = Math.round(convertValue(numValue, currentUnit, newUnit, fieldMapping[key]) * 10000) / 10000;
+        dataUpdate[key] = Number(convertValue(numValue, currentUnit, newUnit, fieldMapping[key]).toFixed(5));
       }
     });
 
@@ -79,7 +79,7 @@ export function PropertiesPanel() {
     if (element.data?.schedulePoints) {
       dataUpdate.schedulePoints = (element.data.schedulePoints as any[]).map(p => ({
         ...p,
-        flow: Math.round(convertValue(p.flow, currentUnit, newUnit, 'flow') * 10000) / 10000
+        flow: Number(convertValue(p.flow, currentUnit, newUnit, 'flow').toFixed(5))
       }));
     }
 
