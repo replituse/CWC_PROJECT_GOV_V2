@@ -198,13 +198,10 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
 
     // Convert all nodes
     const newNodes = state.nodes.map(node => {
-      if (node.data?.unit) return node; // Skip elements with local override
-
       const dataUpdate: any = {};
       Object.entries(node.data || {}).forEach(([key, value]) => {
         if ((typeof value === 'number' || (typeof value === 'string' && value.trim() !== '' && !isNaN(Number(value)))) && fieldMapping[key]) {
-          const converted = convertValue(value as any, oldUnit, unit, fieldMapping[key]);
-          dataUpdate[key] = converted;
+          dataUpdate[key] = convertValue(value as any, oldUnit, unit, fieldMapping[key]);
         }
       });
 
@@ -215,6 +212,11 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
         }));
       }
 
+      // Clear local unit override so it follows global setting
+      if (node.data?.unit) {
+        dataUpdate.unit = undefined;
+      }
+
       return Object.keys(dataUpdate).length > 0 
         ? { ...node, data: { ...node.data, ...dataUpdate } } 
         : node;
@@ -222,14 +224,17 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
 
     // Convert all edges
     const newEdges = state.edges.map(edge => {
-      if (edge.data?.unit) return edge; // Skip elements with local override
-
       const dataUpdate: any = {};
       Object.entries(edge.data || {}).forEach(([key, value]) => {
         if ((typeof value === 'number' || (typeof value === 'string' && value.trim() !== '' && !isNaN(Number(value)))) && fieldMapping[key]) {
           dataUpdate[key] = convertValue(value as any, oldUnit, unit, fieldMapping[key]);
         }
       });
+
+      // Clear local unit override so it follows global setting
+      if (edge.data?.unit) {
+        dataUpdate.unit = undefined;
+      }
 
       return Object.keys(dataUpdate).length > 0 
         ? { ...edge, data: { ...edge.data, ...dataUpdate } } 
