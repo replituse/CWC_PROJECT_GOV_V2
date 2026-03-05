@@ -85,10 +85,9 @@ export function generateSystemDiagramSVG(nodes: WhamoNode[], edges: WhamoEdge[],
   });
 
   const numLevels = Object.keys(levelsMap).length;
-  // Increase SVG size significantly to ensure everything fits comfortably
-  // Increased width and height to give more "free" space
-  const svgWidth = Math.max(2400, (numLevels + 1) * spacingX + 400);
-  const svgHeight = Math.max(1600, (maxNodesInLevel + 1) * spacingY + 400);
+  // Increase SVG size to ensure everything fits comfortably
+  const svgWidth = Math.max(1600, (numLevels + 1) * spacingX + 200);
+  const svgHeight = Math.max(900, (maxNodesInLevel + 1) * spacingY + 200);
 
   Object.entries(levelsMap).forEach(([lvlStr, nodeIds]) => {
     const lvl = parseInt(lvlStr);
@@ -97,7 +96,7 @@ export function generateSystemDiagramSVG(nodes: WhamoNode[], edges: WhamoEdge[],
     
     nodeIds.forEach((id, idx) => {
       posMap[id] = {
-        x: 150 + lvl * spacingX,
+        x: 100 + lvl * spacingX,
         y: startY + idx * spacingY
       };
     });
