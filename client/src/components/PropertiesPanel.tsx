@@ -285,10 +285,19 @@ export function PropertiesPanel() {
               {element.data?.type === 'reservoir' && element.data?.mode === 'schedule' && (
                 <div className="space-y-4">
                   <div className="grid gap-2">
-                    <Label htmlFor="hScheduleNum">H Schedule Number</Label>
+                    <Label htmlFor="hScheduleNum">Schedule Number</Label>
                     <Select 
                       value={(element.data?.hScheduleNumber || 1).toString()} 
                       onValueChange={(v) => {
+                        if (v === 'add-new') {
+                          const maxSched = hSchedules.length > 0 
+                            ? Math.max(...hSchedules.map(s => s.number)) 
+                            : 5;
+                          const newNum = maxSched + 1;
+                          addHSchedule(newNum);
+                          handleChange('hScheduleNumber', newNum);
+                          return;
+                        }
                         const num = parseInt(v);
                         addHSchedule(num);
                         handleChange('hScheduleNumber', num);
@@ -298,9 +307,13 @@ export function PropertiesPanel() {
                         <SelectValue placeholder="Select schedule" />
                       </SelectTrigger>
                       <SelectContent>
-                        {[1, 2, 3, 4, 5].map(num => (
-                          <SelectItem key={num} value={num.toString()}>HSCHEDULE {num}</SelectItem>
+                        {Array.from({ length: Math.max(5, ...hSchedules.map(s => s.number)) }, (_, i) => i + 1).map(num => (
+                          <SelectItem key={num} value={num.toString()}>{num}</SelectItem>
                         ))}
+                        <Separator className="my-1" />
+                        <SelectItem value="add-new" className="text-primary font-medium cursor-pointer">
+                          + Add New Schedule
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
