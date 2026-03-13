@@ -77,7 +77,7 @@ const edgeTypes = {
 function DesignerInner() {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { zoomIn, zoomOut, fitView } = useReactFlow();
+  const { zoomIn, zoomOut, fitView, screenToFlowPosition } = useReactFlow();
   const [validationData, setValidationData] = useState<{ errors: ValidationError[], warnings: ValidationError[] } | null>(null);
   const [showNodeSelection, setShowNodeSelection] = useState(false);
 
@@ -111,7 +111,8 @@ function DesignerInner() {
     undo,
     redo,
     loadedFileHandle,
-    setAllNodesSelected
+    setAllNodesSelected,
+    addNode,
   } = useNetworkStore();
 
   const handleSave = async () => {
@@ -185,6 +186,36 @@ function DesignerInner() {
       storeOnConnect(params);
     },
     [storeOnConnect, toast, isLocked]
+  );
+
+  const onConnectEnd = useCallback(
+    (event: MouseEvent | TouchEvent, connectionState: any) => {
+      if (isLocked) return;
+      // Only fire when dropped on empty canvas (no target node)
+      if (connectionState?.fromNode && !connectionState?.toNode) {
+        const { clientX, clientY } =
+          'changedTouches' in event ? event.changedTouches[0] : (event as MouseEvent);
+        const position = screenToFlowPosition({ x: clientX, y: clientY });
+
+        // Add a new plain node at the drop point
+        addNode('node', position);
+
+        // The new node is always appended last — grab it from the store
+        const newNode = useNetworkStore.getState().nodes.at(-1);
+        if (!newNode) return;
+
+        storeOnConnect({
+          source: connectionState.fromNode.id,
+          sourceHandle: connectionState.fromHandle?.id ?? null,
+          target: newNode.id,
+          targetHandle: null,
+        });
+
+        // Auto-select the new node so properties panel opens
+        selectElement(newNode.id, 'node');
+      }
+    },
+    [isLocked, screenToFlowPosition, addNode, storeOnConnect, selectElement]
   );
 
   const onNodeClick = useCallback((_: React.MouseEvent, node: Node) => {
@@ -584,6 +615,7 @@ function DesignerInner() {
                   onNodesChange={onNodesChange}
                   onEdgesChange={onEdgesChange}
                   onConnect={onConnect}
+                  onConnectEnd={onConnectEnd}
                   nodeTypes={nodeTypes}
                   edgeTypes={edgeTypes}
                   onNodeClick={onNodeClick}
