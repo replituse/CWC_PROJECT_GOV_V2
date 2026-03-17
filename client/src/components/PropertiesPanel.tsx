@@ -819,14 +819,75 @@ export function PropertiesPanel() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="friction">Friction (f)</Label>
-                  <Input 
-                    id="friction" 
-                    type="number" 
-                    step="0.001"
-                    value={element.data?.friction || 0} 
-                    onChange={(e) => handleChange('friction', e.target.value)} 
-                  />
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="friction">Friction (f)</Label>
+                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                      <button
+                        type="button"
+                        data-testid="friction-mode-direct"
+                        onClick={() => handleChange('frictionMode', 'direct')}
+                        className={`px-1.5 py-0.5 rounded text-xs font-medium transition-colors ${
+                          (element.data?.frictionMode || 'direct') === 'direct'
+                            ? 'bg-primary text-primary-foreground'
+                            : 'bg-muted hover:bg-muted/80'
+                        }`}
+                      >
+                        Direct
+                      </button>
+                      <button
+                        type="button"
+                        data-testid="friction-mode-manning"
+                        onClick={() => handleChange('frictionMode', 'manning')}
+                        className={`px-1.5 py-0.5 rounded text-xs font-medium transition-colors ${
+                          (element.data?.frictionMode || 'direct') === 'manning'
+                            ? 'bg-primary text-primary-foreground'
+                            : 'bg-muted hover:bg-muted/80'
+                        }`}
+                      >
+                        Manning's n
+                      </button>
+                    </div>
+                  </div>
+                  {(element.data?.frictionMode || 'direct') === 'direct' ? (
+                    <Input 
+                      id="friction" 
+                      data-testid="input-friction"
+                      type="number" 
+                      step="0.001"
+                      value={element.data?.friction || 0} 
+                      onChange={(e) => handleChange('friction', e.target.value)} 
+                    />
+                  ) : (
+                    <div className="space-y-1">
+                      <Input
+                        id="mannings-n"
+                        data-testid="input-mannings-n"
+                        type="number"
+                        step="0.0001"
+                        placeholder="Enter n"
+                        value={element.data?.manningsN || ''}
+                        onChange={(e) => {
+                          const n = parseFloat(e.target.value);
+                          handleChange('manningsN', e.target.value);
+                          if (!isNaN(n) && n > 0) {
+                            const diamFt = currentUnit === 'SI'
+                              ? (parseFloat(element.data?.diameter) || 0) * 3.28084
+                              : (parseFloat(element.data?.diameter) || 0);
+                            if (diamFt > 0) {
+                              const f = (185 * n * n) / Math.pow(diamFt, 1 / 3);
+                              handleChange('friction', parseFloat(f.toFixed(6)).toString());
+                            }
+                          }
+                        }}
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        f = 185·n² / D<sup>1/3</sup>
+                        {element.data?.manningsN && element.data?.friction ? (
+                          <span className="ml-1 font-medium text-foreground">= {parseFloat(Number(element.data.friction).toFixed(6))}</span>
+                        ) : null}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
               <div className="grid gap-2">
